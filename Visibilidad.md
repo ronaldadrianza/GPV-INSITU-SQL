@@ -145,25 +145,6 @@ FROM
 WHERE
     "year" >= '2022'
 
-
-
-    fecha_fin AS "Fecha Fin",
-    TO_DATE(CONCAT('1', '/', "month", '/', "year"), 'DD/MM/YYYY') AS "Fecha llave",
-    CASE
-        WHEN EXTRACT(MONTH FROM fecha_inicio) = EXTRACT(MONTH FROM fecha_fin) THEN 'Exhibiciones mes vencido'
-        WHEN EXTRACT(MONTH FROM fecha_inicio) <> EXTRACT(MONTH FROM fecha_fin) AND DATE_PART('day', fecha_fin - fecha_inicio) > 30 THEN 'Exhibiciones mes vencido'
-        WHEN EXTRACT(MONTH FROM fecha_inicio) <> EXTRACT(MONTH FROM fecha_fin) AND DATE_PART('day', fecha_fin - fecha_inicio) <= 30 THEN 'Exhibiciones mes a otro'
-    END AS "Clasificación Negociación",
-    CONCAT(marca, categoria) AS "Llave marca",
-    CONCAT(origen_de_negociacion, tipo_de_origen, detalle) AS "Llave negociacion",
-    CONCAT("codigo_cliente _tr_au_", "year", "month") AS "Llave padrino",
-    CONCAT(tipoexhibicion,marca,categoria,"codigo_cliente _tr_au_",detalle,origen_de_negociacion,agrupador) AS "Llave exhibiciones"
-FROM
-    "bk_FAMILIA_sabana_visibilidad_pactado" bfsvp
-WHERE
-    "year" IN ('2022', '2023', '2024')
- order by "year" desc
-    
 --- Extraccion de dimension marca
 select
 	distinct marca as "Marca" ,

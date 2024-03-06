@@ -21,15 +21,46 @@
   where fecha_chequeo >= '2022-01-01' and tipo_negociacion <> 'Planograma'
   order by fecha_chequeo desc
   
- --- Extraccion de dimension cliente
-  select
+
+  
+ --- Extraccion de dimension cliente maestro de SABANA y VISIBILIDAD ADICIONAL
+select distinct 
+    "codigo_cliente _tr_au_"  AS "Codigo Sucursal",
+    descripcion AS "Nombre Sucursal",
+    banner_tipologia AS "Banner / Tipologia",
+    distrito AS "Distrito",
+    CASE
+        WHEN identificador = 'COOPIDROGAS' OR identificador = 'DROGUERIAS EN CADENA' THEN 'FARMACIAS'
+        ELSE identificador
+    END AS "Canal Unificado"
+FROM
+    "bk_FAMILIA_sabana_visibilidad_pactado" bfsvp 
+WHERE
+    "year" >= '2022'
+ union  
+      select distinct 
 	codigo_cliente_tr_au as "Codigo Sucursal",
 	descripcion as "Nombre Sucursal",
 	banner_tipologia as "Banner / Tipologia",
 	distrito as "Distrito",
-	canal_principal as "Canal Principal"
+	CASE
+        WHEN banner_tipologia  in ('ALKOSTO', 'CARULLA', 'ARA', 'EXITO','CASH AND CARRY','DOLLAR CITY','HOMECENTER SODIMAC','JUMBO','MAKRO','METRO','OLIMPICA','SAO','PRICESMART COLOMBIA S.A.S',
+        'SUPER TIENDA OLIMPICA','SUPERINTER','SURTIMAX','SURTIMAYORISTA') then 'CADENAS' 
+        when banner_tipologia in ('ALMACENES EL CHISPAZO','ALMACENES PARAISO','ALTIPAL S.A', 'BELALCAZAR', 'CANASTA', 'CARIBE','COLSUBSIDIO CADENAS REGIONALES','COMERCIALIZADORA MONTES',
+        'COMFANDI','CORBETA BOGOTA', 'CORBETA CALI', 'DESPENSA SAN AGUSTIN','DIRECTO', 'DISTRIBUIDORA TROPICANA','DISTRIBUIDORA TROPIQUINDIO','DISTRICOMER','EURO', 'LA QUINTA',
+        'MAS POR MENOS', 'MEGATIENDAS','MERCACENTRO', 'MERCADO LIDER','MERCADO ZAPATOCA', 'MERCALDAS', 'MI FUTURO', 'PASADENA', 'POPULAR','PUYO','RAPIMERCAR','SUPER DE CADENA',
+        'SUPER INDEPENDIENTES','SUPERTIENDAS CAÑAVERAL','SURTIFAMILIAR', 'SURTIPLAZA') then 'CR+SI' 
+        when banner_tipologia in ('COLSUBSIDIO DROGUERIAS', 'DROGUERIA OLIMPICA','DROGUERIAS COOPIDROGUISTAS','DROGUERIAS DE DISTRIBUCION','DROGUERIAS EN CADENA', 'SUPER DROGUERIA OLIMPICA')
+        then 'FARMACIAS'
+        when banner_tipologia = 'MASCOTAS' then 'MASCOTAS'
+        when banner_tipologia = 'PAÑALERAS' then 'PAÑALERAS'
+        when banner_tipologia= 'MAYORISTAS' then 'MAYORISTAS'
+        when banner_tipologia = 'CACHARRERIAS' then 'CACHARRERIAS'
+        when banner_tipologia = 'MERCAFAM' then 'MERCAFAM'
+        END AS "Canal Unificado"
 from
 	bk_exhibiciones_adicionales_nueva bean
+	where fecha_chequeo >= '2022-01-01'
 	
 --- Extraccion de dimension marca
 	select
@@ -39,3 +70,9 @@ from
 	categoria) as "Llave marca"
 from
 	bk_exhibiciones_adicionales_nueva bean 
+	
+  
+ 
+  
+  
+ 

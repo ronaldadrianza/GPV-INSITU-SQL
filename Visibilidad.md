@@ -1,3 +1,54 @@
+--- Union sabana con Exhibiciones
+SELECT
+    s."codigo_cliente _tr_au_" AS "Codigo Sucursal",
+    s.tipoexhibicion AS "Tipo Exhibicion",
+    s.fecha_inicio AS "Fecha Inicio",
+    s.fecha_fin AS "Fecha Fin",
+    TO_DATE(CONCAT('1', '/', s."month", '/', s."year"), 'DD/MM/YYYY') AS "Fecha llave",
+    CASE
+        WHEN EXTRACT(MONTH FROM s.fecha_inicio) = EXTRACT(MONTH FROM s.fecha_fin) THEN 'Exhibiciones mes vencido'
+        WHEN EXTRACT(MONTH FROM s.fecha_inicio) <> EXTRACT(MONTH FROM s.fecha_fin) AND DATE_PART('day', s.fecha_fin - s.fecha_inicio) > 30 THEN 'Exhibiciones mes vencido'
+        WHEN EXTRACT(MONTH FROM s.fecha_inicio) <> EXTRACT(MONTH FROM s.fecha_fin) AND DATE_PART('day', s.fecha_fin - s.fecha_inicio) <= 30 THEN 'Exhibiciones mes a otro'
+    END AS "Clasificación Negociación",
+    s.agrupador AS "Agrupador",
+    "year" as "Año",
+    "month" as "Mes",
+    CONCAT(s.marca, s.categoria) AS "Llave marca",
+    CONCAT(s.origen_de_negociacion, s.tipo_de_origen, s.detalle) AS "Llave negociacion",
+    CONCAT(s."codigo_cliente _tr_au_","year","month") as "Llave padrino",
+    CONCAT(s.tipoexhibicion, s.marca, s.categoria, s."codigo_cliente _tr_au_", s.detalle, s.origen_de_negociacion, s.agrupador) AS "Llave exhibicion",
+    e.codigo_cliente_au_tr AS "Codigo Sucursal (E)",
+    e.fecha_chequeo AS "Fecha chequeo",
+    e.usuario_chequeo AS "Usuario",
+    e.codigoactividad AS "Codigo Actividad",
+    e.cumple AS "Cumple",
+    CASE
+        WHEN e.cumple IN ('Cumple con exhibición y marca', 'Cumple con otra exhibición y marca', 'Cumple con exhibición y otra marca', 'Cumple con otra exhibición', 'Cumple con otra exhibición y otra marca') THEN 'Cumple'
+        WHEN e.cumple ='No cumple' THEN 'No cumple'
+        WHEN e.cumple = ' ' THEN 'Sin chequear'
+    END AS "Agrupacion de cumplimiento",
+    e.foto_adjunto AS "Foto Adjunto",
+    e.foto AS "Foto",
+    e.motivo AS "Motivo",
+    e.observaciones AS "Observaciones",
+    e.cual AS "Cual",
+    e.otra_marca AS "Otra Marca",
+    e.agrupador AS "Agrupador (E)",
+    CONCAT(e.tipoexhibicion, e.marca, e.categoria, e.codigo_cliente_au_tr, e.detalle, e.origen_de_negociacion, e.agrupador) AS "Llave chequeos"
+FROM
+    "bk_FAMILIA_sabana_visibilidad_pactado" s
+LEFT JOIN
+    "bk_exhibiciones_nueva" e
+ON
+    CONCAT(s.tipoexhibicion, s.marca, s.categoria, s."codigo_cliente _tr_au_", s.detalle, s.origen_de_negociacion, "year","month", s.agrupador)
+    =
+    CONCAT(e.tipoexhibicion, e.marca, e.categoria, e.codigo_cliente_au_tr, e.detalle, e.origen_de_negociacion,
+    EXTRACT(YEAR FROM e.fecha_chequeo), EXTRACT(MONTH FROM e.fecha_chequeo), e.agrupador)
+    where "year" in ('2022','2023','2024')
+
+
+
+
 
 --- Extraccion de tabla hechos de exhibiciones
 
